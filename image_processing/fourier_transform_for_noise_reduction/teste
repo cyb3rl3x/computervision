@@ -1,0 +1,38 @@
+%abre a imagem e converte para tons de cinza
+%LENA
+%P = rgb2gray(imread('lena.png')); 
+%CAMERAMAN
+%noisy = imread('cameraman.tif'); 
+%APOLO
+noisy = imread('apolo.tif'); 
+
+%adiciona ruído
+%noisy = imnoise(P,'salt & pepper',0.08);
+
+%exibe a imagem
+subplot(2,2,1), imshow(noisy)
+
+%aplica a transformada
+fft_noisy = fftshift(fft2(noisy));
+
+%aplica a transformada
+subplot(2,2,2), fftshow(fft_noisy,'log')
+
+%LENA
+%[x,y]=meshgrid(-256:255,-256:255);
+%CAMERAMAN
+%[x,y]=meshgrid(-128:127,-128:127);
+%APOLO
+[x,y]=meshgrid(-315:314,-237:236);
+z=sqrt(x.^2+y.^2);
+c=(z>10)&(z<60);
+%c=(z<50);
+
+
+selected_fft = fft_noisy.*c;
+subplot(2,2,3),fftshow(selected_fft,'log')
+
+inverted_fft = ifft2(selected_fft);
+
+subplot(2,2,4),fftshow(inverted_fft,'abs')
+
