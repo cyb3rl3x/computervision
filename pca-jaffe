@@ -1,0 +1,65 @@
+n_pessoas = 10;
+amostra = 19;
+filename = '\caminho\jaffe\s';
+linha = 256;
+coluna = 256;
+for kfold=1:20
+faces = zeros((linha*coluna),(n_pessoas*amostra));
+face_media = zeros(linha*coluna,1);
+facemedia_sub = zeros((linha*coluna),(n_pessoas*amostra));
+facetest = zeros(linha*coluna,1);
+facetest_media = zeros(linha*coluna,1);
+n = 1;
+c = 1;
+for i = 1:n_pessoas
+  dir = strcat(filename,num2str(i),'\');
+  for j = 1:20
+    if j~=kfold
+      final_path = strcat(dir,num2str(j),'.tiff');
+      img = imread(final_path,'tiff');
+      for p = 1:linha
+        for k = 1:coluna
+          faces(c,n) = img(p,k);
+          c = c+1;
+        end
+      end
+      n = n + 1;
+      c = 1;
+    end
+  end
+end
+
+%% Cálculo da face média
+face_media = mean(faces,2);
+
+%% Subtração pela face média
+for i = 1:(n_pessoas*amostra)
+  facemedia_sub(:,i) = faces(:,i)-face_media;
+end
+
+%% Cálculo da matriz de covariância
+mcov = cov(facemedia_sub);
+
+%% Cálculo das eigenfaces
+[autovet_pca,autoval_pca] = eig(mcov);
+autoval_pca = eig(mcov);
+autoval_pca = sort(autoval_pca,'descend');
+variancia = zeros(size(autoval_pca));
+total = sum(autoval_pca.^2);
+
+%% Cálculo da variância
+for i = 1:size(autoval_pca)
+  parcial = 0;
+    for j = 1:i
+      parcial = parcial + autoval_pca(j)^2;
+    end
+    variancia(i) = 100*(parcial/total);
+end
+
+plot(1:size(autoval_pca),variancia,'b -');
+title('Número ótimo de eigenfaces')
+ylabel('Variância acumulada (%)');
+xlabel('Número de eigenfaces');
+hold on
+plot(14,99,'ro');
+end
