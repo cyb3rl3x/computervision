@@ -1,0 +1,47 @@
+image = imread('planta01.jpg');
+%red = image(:,:,1);
+only_red = zeros(2592,4608,3);
+for i=1:2592
+    for j=1:4608
+        %os tons de vermelho determinam um intervalo de cor da fruta
+        %este é apenas um tom formado por valores de rgb
+        if image(i, j, 1)>60 && image(i, j, 2)<90 && image(i, j, 3)<150
+            only_red(i,j,1) = 1;
+            only_red(i,j,2) = 0; 
+            only_red(i,j,3) = 0; 
+        else
+            only_red(i,j,1) = 0;
+            only_red(i,j,2) = 0; 
+            only_red(i,j,3) = 0; 
+        end
+    end
+end 
+    
+red = only_red(:,:,1);
+imshow(red);
+
+[B,L] = bwboundaries(red, 'noholes');
+
+stats = regionprops(L, 'Area');
+qtd_azuis = sum([stats.Area] > 5);
+
+imshow(image);
+title(sprintf('\\fontsize{16}{%d frutos maduros}', qtd_azuis));
+
+hold on
+f=1;
+for k = 1:length(B)
+    area = stats(k).Area;
+    
+    if area > 50
+        boundary = B{k};
+        plot(boundary(:,2), boundary(:,1), 'black', 'LineWidth', 2);
+        text(boundary(1,2), boundary(1,1), sprintf('%.0f',f),...
+            'Color', 'white',...
+            'FontSize', 12,...
+            'FontWeight', 'bold',...
+            'BackgroundColor', 'black');
+        f=f+1;
+    end
+end
+hold off
