@@ -1,0 +1,35 @@
+%Reading in the original image and converting it into grey, also adding 
+%noise to the image 
+P = rgb2gray(imread('lena.png')); 
+noisy = imnoise(P,'salt & pepper',0.08);
+
+I1 = [P]; I1 = 255*mat2gray(I1);
+figure(2), imshow(noisy)
+
+%Producing the FFT of the noisy image
+
+fft = fft2(P);
+absfft = log(abs(fftshift(fft)));
+absffts = [absfft];
+absffts = 255*mat2gray(absffts);
+
+%Plotting the noisy image and its FFT alongside one another 
+combined = [noisy absffts]; 
+figure(3); 
+imagesc(combined);
+axis image;
+colormap gray; 
+axis off
+
+%Attempting the inverse of the noisy FFT and plotting it all alongside one 
+%another.
+invfft =ifft2(absffts); 
+absinv = log(abs((invfft))); 
+ absinvs = [absinv]; 
+ absinvs = 255*mat2gray(absinvs); 
+newcombined = [noisy absffts invfft]; 
+figure(4); 
+imagesc(newcombined);
+axis image; 
+colormap gray;
+axis off
